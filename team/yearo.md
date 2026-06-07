@@ -14,3 +14,6 @@ Vallarta
 
 ## Preferred comunication style
 I prefer to communicate through Discord
+
+## Availability
+I'm available on weekdays after 5pm and weekends all day.
