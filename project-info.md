@@ -1,7 +1,7 @@
 # Project Info
 
 ## Project Name
-Kit Fox Tracker
+Campus Wildlife Tracker
 
 ## Project Description
 Temporary description.
