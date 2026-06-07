@@ -11,3 +11,6 @@ I rely too much on AI.
 
 ## Pastries
 Vallarta
+
+## Preferred comunication style
+I prefer to communicate through Discord
