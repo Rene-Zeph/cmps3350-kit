@@ -1,32 +1,51 @@
-import { Link, Routes, Route } from 'react-router-dom'
-import Home from './pages/Home.jsx'
-import SubmitSighting from './pages/SubmitSighting.jsx'
-import Sightings from './pages/Sightings.jsx'
-import About from './pages/About.jsx'
+import { useState } from 'react'
 import './App.css'
 
+import Home from './pages/Home'
+import SubmitSighting from './pages/SubmitSighting'
+import Sightings from './pages/Sightings'
+import About from './pages/About'
+
 function App() {
+  const [page, setPage] = useState('home')
+
+  const renderPage = () => {
+    if (page === 'submit') {
+      return <SubmitSighting setPage={setPage} />
+    }
+
+    if (page === 'sightings') {
+      return <Sightings />
+    }
+
+    if (page === 'about') {
+      return <About />
+    }
+
+    return <Home setPage={setPage} />
+  }
+
   return (
-    <>
-      <header>
-        <h1>Kit Fox Tracker</h1>
+    <div className="app">
+      <header className="navbar">
+        <div className="logo" onClick={() => setPage('home')}>
+          🦊 Smol Foxys
+        </div>
+
         <nav>
-          <Link to="/">Home</Link>
-          <Link to="/submit">Submit Sighting</Link>
-          <Link to="/sightings">Sightings</Link>
-          <Link to="/about">About</Link>
+          <button onClick={() => setPage('home')}>Home</button>
+          <button onClick={() => setPage('submit')}>Submit</button>
+          <button onClick={() => setPage('sightings')}>Sightings</button>
+          <button onClick={() => setPage('about')}>About</button>
         </nav>
       </header>
 
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/submit" element={<SubmitSighting />} />
-          <Route path="/sightings" element={<Sightings />} />
-          <Route path="/about" element={<About />} />
-        </Routes>
-      </main>
-    </>
+      <main>{renderPage()}</main>
+
+      <footer>
+        <p>Milestone 2 Interactive Prototype | Team 1 S26</p>
+      </footer>
+    </div>
   )
 }
 
