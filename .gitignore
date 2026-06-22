@@ -71,3 +71,4 @@ Testing/
 node_modules
 dist
 .env
+*.pem
