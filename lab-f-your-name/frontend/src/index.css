@@ -1,0 +1,28 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #243025;
+  background-color: #11121a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #11121a;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #11121a;
+}
+
+#root {
+  min-height: 100vh;
+}
