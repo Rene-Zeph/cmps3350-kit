@@ -1,105 +1,155 @@
 import { useState } from 'react'
+import { API_BASE_URL } from '../api.js'
+import { isValidSightingInput } from '../utils/sightingValidation.js'
 
 function SubmitSighting({ setPage }) {
-  const [submitted, setSubmitted] = useState(false)
+  const [observerName, setObserverName] = useState('')
+  const [sightingDate, setSightingDate] = useState('')
+  const [locationName, setLocationName] = useState('')
+  const [healthStatus, setHealthStatus] = useState('Unknown')
+  const [notes, setNotes] = useState('')
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (event) => {
+  async function handleSubmit(event) {
     event.preventDefault()
-    setSubmitted(true)
 
-    setTimeout(() => {
-      setPage('sightings')
-    }, 800)
+    setMessage('')
+    setError('')
+
+    const newSighting = {
+      observer_name: observerName,
+      sighting_date: sightingDate,
+      location_name: locationName,
+      health_status: healthStatus,
+      notes
+    }
+
+    if (!isValidSightingInput(newSighting)) {
+      setError('Observer name, sighting date, and location name are required.')
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/sightings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newSighting)
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`)
+      }
+
+      const result = await response.json()
+
+      setMessage(`Sighting created with ID ${result.id}. Check the Sightings page to see the new record.`)
+      setObserverName('')
+      setSightingDate('')
+      setLocationName('')
+      setHealthStatus('Unknown')
+      setNotes('')
+    } catch (err) {
+      console.error(err)
+      setError('Could not create the sighting. Check the API URL and backend.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
     <section className="page">
       <p className="label">Submit Sighting</p>
       <h1>Report a kit fox sighting</h1>
+
       <p>
-        This form is part of the interactive prototype. It shows the fields users
-        may complete later, but it does not save data yet.
+        This form sends a POST request to the Express/MySQL API.
       </p>
 
-      {submitted && (
+      {message && (
         <div className="success-box">
-          Prototype action: sighting submitted. Redirecting to sightings...
+          {message}
+        </div>
+      )}
+
+      {error && (
+        <div className="success-box">
+          {error}
         </div>
       )}
 
       <form className="form-card" onSubmit={handleSubmit}>
         <label>
-          Date of sighting
-          <input type="date" />
-        </label>
-
-        <label>
-          Time of sighting
-          <input type="time" />
-        </label>
-
-        <label className="wide">
-          Location description
+          Observer name
           <input
             type="text"
-            placeholder="Example: Near campus edge by open field"
+            value={observerName}
+            onChange={(event) => setObserverName(event.target.value)}
+            placeholder="Example: Demetrio"
+            required
           />
         </label>
 
         <label>
-          Latitude optional
-          <input type="text" placeholder="35.3500" />
+          Sighting date
+          <input
+            type="date"
+            value={sightingDate}
+            onChange={(event) => setSightingDate(event.target.value)}
+            required
+          />
         </label>
 
-        <label>
-          Longitude optional
-          <input type="text" placeholder="-119.1040" />
+        <label className="wide">
+          Location name
+          <input
+            type="text"
+            value={locationName}
+            onChange={(event) => setLocationName(event.target.value)}
+            placeholder="Example: CSUB campus"
+            required
+          />
         </label>
 
-        <label>
-          Number of foxes observed
-          <input type="number" min="1" placeholder="1" />
-        </label>
-
-        <label>
+        <label className="wide">
           Health status
-          <select defaultValue="">
-            <option value="" disabled>
-              Select status
-            </option>
+          <select
+            value={healthStatus}
+            onChange={(event) => setHealthStatus(event.target.value)}
+          >
+            <option>Unknown</option>
             <option>Appears healthy</option>
-            <option>Unknown condition</option>
-            <option>Injured or sick</option>
             <option>Needs review</option>
+            <option>Injured or sick</option>
           </select>
         </label>
 
         <label className="wide">
-          Photo URL or image reference
-          <input
-            type="text"
-            placeholder="Paste a photo URL or describe the photo"
+          Notes
+          <textarea
+            rows="5"
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            placeholder="Describe what was observed."
           />
         </label>
 
-        <label className="wide">
-          Observation notes
-          <textarea
-            rows="5"
-            placeholder="Describe what the fox was doing, direction of travel, landmarks, or safety concerns."
-          ></textarea>
-        </label>
-
         <div className="button-row wide">
-          <button className="primary-btn" type="submit">
-            Submit Sighting
+          <button className="primary-btn" type="submit" disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit Sighting'}
           </button>
+
           <button
             className="secondary-btn"
             type="button"
-            onClick={() => setPage('home')}
+            onClick={() => setPage && setPage('sightings')}
           >
-            Cancel
+            View Sightings
           </button>
         </div>
       </form>

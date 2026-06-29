@@ -1,71 +1,108 @@
-const sightings = [
-  {
-    id: 1,
-    date: 'June 5, 2026',
-    time: '7:15 PM',
-    location: 'Near campus edge by open field',
-    foxes: 2,
-    status: 'Appears healthy',
-    notes: 'Two foxes crossed near the walking path and moved toward the open field.',
-  },
-  {
-    id: 2,
-    date: 'June 8, 2026',
-    time: '6:40 AM',
-    location: 'Beside canal path',
-    foxes: 1,
-    status: 'Unknown condition',
-    notes: 'Single fox observed from a distance. No clear signs of injury.',
-  },
-  {
-    id: 3,
-    date: 'June 11, 2026',
-    time: '8:05 PM',
-    location: 'Behind parking area near brush',
-    foxes: 3,
-    status: 'Needs review',
-    notes: 'Group was visible briefly before moving behind brush.',
-  },
-]
+import { useEffect, useState } from 'react'
+import { API_BASE_URL } from '../api.js'
 
 function Sightings() {
+  const [sightings, setSightings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  async function loadSightings() {
+    setLoading(true)
+    setError('')
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/sightings`)
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`)
+      }
+
+      const data = await response.json()
+      setSightings(data)
+    } catch (err) {
+      console.error(err)
+      setError('Could not load sightings from the API.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadSightings()
+  }, [])
+
+  if (loading) {
+    return (
+      <section className="page">
+        <p className="label">Sightings List</p>
+        <h1>Submitted sightings</h1>
+        <p>Loading sightings from the database-backed API...</p>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="page">
+        <p className="label">Sightings List</p>
+        <h1>Submitted sightings</h1>
+        <p>{error}</p>
+        <p>Check that the backend is running and that the public API URL is correct.</p>
+        <button className="secondary-btn" onClick={loadSightings}>
+          Try Again
+        </button>
+      </section>
+    )
+  }
+
   return (
     <section className="page">
       <p className="label">Sightings List</p>
       <h1>Submitted sightings</h1>
+
       <p>
-        These are hardcoded example records showing how submitted sightings may
-        appear once the database is added.
+        These records are loaded from the Express/MySQL API.
       </p>
 
       <div className="map-placeholder">
         Map or geographic location view placeholder
       </div>
 
-      <div className="sighting-list">
-        {sightings.map((sighting) => (
-          <article className="sighting-card" key={sighting.id}>
-            <div className="photo-placeholder">
-              Photo Placeholder
-            </div>
+      {sightings.length === 0 ? (
+        <p>No sightings were found.</p>
+      ) : (
+        <div className="sighting-list">
+          {sightings.map((sighting) => (
+            <article className="sighting-card" key={sighting.id}>
+              <div className="photo-placeholder">
+                Photo Placeholder
+              </div>
 
-            <div>
-              <h2>{sighting.location}</h2>
-              <p className="meta">
-                {sighting.date} at {sighting.time}
-              </p>
-              <p>
-                <strong>Foxes observed:</strong> {sighting.foxes}
-              </p>
-              <p>
-                <strong>Health status:</strong> {sighting.status}
-              </p>
-              <p>{sighting.notes}</p>
-              <button className="small-btn">View Details Placeholder</button>
-            </div>
-          </article>
-        ))}
-      </div>
+              <div>
+                <h2>{sighting.location_name}</h2>
+
+                <p className="meta">
+                  {sighting.sighting_date}
+                </p>
+
+                <p>
+                  <strong>Observer:</strong> {sighting.observer_name}
+                </p>
+
+                <p>
+                  <strong>Health status:</strong> {sighting.health_status || 'Unknown'}
+                </p>
+
+                <p>{sighting.notes || 'No notes provided.'}</p>
+
+                <button className="small-btn">
+                  View Details Placeholder
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   )
 }
